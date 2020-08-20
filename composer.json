@@ -1,14 +1,8 @@
 {
-    "name": "gameball/gameball-sdk",
-    "description": "SDK for Gameball using PHP",
+    "name": "gameball/gameball-php",
+    "description": "Gameball PHP Library",
     "type": "library",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "omar73",
-            "email": "omar.alaskndrani.1@gmail.com"
-        }
-    ],
     "autoload": {
         "psr-4": {"Gameball\\": "lib/"}
     },
