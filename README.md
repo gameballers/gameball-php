@@ -18,7 +18,7 @@ want to use the SDK, just run:
 You can install the bindings via [Composer](https://getcomposer.org/). Run the following command:
 
 ```sh
-composer require prototype/SDK_PHP
+composer require gameball/gameball-php
 ```
 
 

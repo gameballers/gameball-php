@@ -212,10 +212,10 @@ class CurlClient implements ClientInterface{
             $opts[\CURLOPT_HTTPGET] = 1;
             // if it is get with passed parameters
 
-            if (\count($params) > 0) {
-                $encoded = Util\Util::encodeParameters($params);
-                $absUrl = "{$absUrl}?{$encoded}";
-            }
+            // if (\count($params) > 0) {
+            //     $encoded = Util\Util::encodeParameters($params);
+            //     $absUrl = "{$absUrl}?{$encoded}";
+            // }
         }
         elseif ('post' === $method)
         {
@@ -229,10 +229,10 @@ class CurlClient implements ClientInterface{
             $opts[\CURLOPT_CUSTOMREQUEST] = 'DELETE';
             // if delete with passed parameters
 
-            if (\count($params) > 0) {
-                $encoded = Util\Util::encodeParameters($params);
-                $absUrl = "{$absUrl}?{$encoded}";
-            }
+            // if (\count($params) > 0) {
+            //     $encoded = Util\Util::encodeParameters($params);
+            //     $absUrl = "{$absUrl}?{$encoded}";
+            // }
         }
         else
         {
@@ -283,7 +283,7 @@ class CurlClient implements ClientInterface{
         // $opts[\CURLOPT_VERBOSE] = true;
 
 
-        $rheaders = new \Gameball\Util\CaseInsensitiveArray();
+        $rheaders = new Util\CaseInsensitiveArray();
         // Create a callback to capture HTTP headers for the response
 
         $headerCallback = function ($curl, $header_line) use (&$rheaders) {
@@ -347,25 +347,21 @@ class CurlClient implements ClientInterface{
             case \CURLE_COULDNT_RESOLVE_HOST:
             case \CURLE_OPERATION_TIMEOUTED:
                 $msg = "Could not connect to Gameball ({$url}).  Please check your "
-                 . 'internet connection and try again.  If this problem persists, '
-                 . "you should check Gameball's service status at "
-                 . 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, or';
-
+                 . 'internet connection and try again.  If this problem persists, ';
                 break;
 
             case \CURLE_SSL_CACERT:
             case \CURLE_SSL_PEER_CERTIFICATE:
                 $msg = "Could not verify Gameball's SSL certificate.  Please make sure "
                  . 'that your network is not intercepting certificates.  '
-                 . "(Try going to {$url} in your browser.)  "
-                 . 'If this problem persists,';
+                 . 'If this problem persists, ';
 
                 break;
             default:
                 $msg = 'Unexpected error communicating with Gameball.  '
-                 . 'If this problem persists,';
+                 . 'If this problem persists, ';
         }
-        $msg .= ' let us know at xxxxxxxxxxxxxxxxxxx.com.';
+        $msg .= 'let us know at support@gameball.co';
 
         $msg .= "\n\n(Network error [errno {$errno}]: {$message})";
 

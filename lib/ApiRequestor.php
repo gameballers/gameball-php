@@ -3,7 +3,6 @@
 namespace Gameball;
 
 
-use Gameball\Exception;
 /**
  * Class ApiRequestor that is responsible for calling the API on behalf of the service
  */

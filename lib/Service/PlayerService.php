@@ -50,18 +50,22 @@ class PlayerService extends \Gameball\Service\AbstractService
 
     /**
      * @param string $playerUniqueId
+     * @param string $lang, the language specified by the user to be sent in headers
      * @param null|array $headers
      *
      * @throws \Gameball\Exception\GameballrException if the request fails
      *
      * @return \Gameball\Gameball\ApiResponse
      */
-    public function getPlayerInfo($playerUniqueId , $headers = null)
+    public function getPlayerInfo($playerUniqueId ,$lang = null, $headers = null)
     {
         if($headers)
             \array_push($headers , 'APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
         else
             $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
+
+        if($lang)
+            \array_push($headers , 'lang: '.$lang);
 
         $transactionKey = $this->getClient()->getTransactionKey();
 

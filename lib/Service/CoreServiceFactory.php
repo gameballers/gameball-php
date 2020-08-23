@@ -12,7 +12,7 @@ namespace Gameball\Service;
 class CoreServiceFactory extends \Gameball\Service\AbstractServiceFactory
 {
     /**
-     * @var array<string, string>
+     * @var array<string, class>
      */
     private static $classMap = [
         'player' => PlayerService::class,
