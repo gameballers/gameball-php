@@ -5,7 +5,7 @@ namespace Gameball;
 class BaseGameballClient implements GameballClientInterface
 {
     /** @var string default base URL for Gameball's API */
-    const DEFAULT_API_BASE = 'https://api.gameball.co/api/v2.0/';
+    const DEFAULT_API_BASE = 'https://api.gameball.co/api/v2.0';
 
 
     private $apiKey;
