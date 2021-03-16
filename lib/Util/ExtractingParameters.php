@@ -43,6 +43,10 @@ abstract class ExtractingParameters{
             if(isset($mobileNumber))
                 $params['playerAttributes']['mobileNumber'] = $mobileNumber;
 
+            $community = $playerRequest->playerAttributes->community;
+            if(isset($community))
+                $params['playerAttributes']['community'] = $community;
+
             $dateOfBirth = $playerRequest->playerAttributes->dateOfBirth;
             if(isset($dateOfBirth))
             {
