@@ -42,6 +42,11 @@ class PlayerAttributes extends AbstractModel
     public $mobileNumber;
 
     /**
+    * @var string $community
+    */
+    public $community;
+
+    /**
     * @var DateTime $dateOfBirth
     */
     public $dateOfBirth;
@@ -66,6 +71,7 @@ class PlayerAttributes extends AbstractModel
                                 $email=null,
                                 $gender=null,
                                 $mobileNumber=null,
+                                $community=null,
                                 $dateOfBirth=null,
                                 $joinDate=null)
     {
@@ -76,6 +82,7 @@ class PlayerAttributes extends AbstractModel
         $instance->email=$email;
         $instance->gender=$gender;
         $instance->mobileNumber=$mobileNumber;
+        $instance->community=$community;
 
         $instance->dateOfBirth=$dateOfBirth;
         $instance->joinDate=$joinDate;
