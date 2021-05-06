@@ -178,13 +178,14 @@ class TransactionService extends \Gameball\Service\AbstractService
      * @param PlayerRequest $playerRequest
      * @param string $amount
      * @param string $transactionId
+     * @param null|Merchant $merchant
      * @param null|array $headers
      *
      * @throws \Gameball\Exception\GameballException if the request fails
      *
      * @return \Gameball\Gameball\ApiResponse
      */
-    public function rewardPoints($playerRequest, $amount, $transactionId, $headers = null)
+    public function rewardPoints($playerRequest, $amount, $transactionId, $merchant=null, $headers = null)
     {
       if($headers)
           \array_push($headers , 'APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
@@ -206,10 +207,45 @@ class TransactionService extends \Gameball\Service\AbstractService
 
       if(!$transactionId)
           throw new \Gameball\Exception\GameballException("Transaction ID must be provided");
-
+      
+      if($merchant)
+      {
+          $merchant->validate();
+      }
+    
       $params = \Gameball\Util\ExtractingParameters::fromPlayerRequest($playerRequest);
       $params['amount'] = $amount;
       $params['transactionId'] = $transactionId;
+      
+      if($merchant)
+      {
+          // Extracting info from the merchant object
+          $params['merchant'] = array();
+          $merchantId = $merchant->uniqueId;
+          if(isset($merchantId))
+          {
+              $params['merchant']['uniqueId'] = $merchantId;
+          }
+          $merchantName = $merchant->name;
+          if(isset($merchantName))
+          {
+              $params['merchant']['name'] = $merchantName;
+          }
+          $branch = $merchant->branch;
+          if(isset($branch))
+          {
+              $params['merchant']['branch'] = array();
+              $params['merchant']['branch']['uniqueId'] = $branch->uniqueId;
+              $branchName = $branch->name;
+              if(isset($branchName))
+              {
+                $params['merchant']['branch']['name'] = $branchName;
+              }
+          }
+      }
+      
+
+
 
       $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))).'Z';
       $params['transactionTime'] = $UTC_DateNow;

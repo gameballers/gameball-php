@@ -140,7 +140,15 @@ $amount = '99.98';
 $transactionId ='tra_123456789';
 
 
-$res= $gameball->transaction->rewardPoints($playerRequest,$amount ,$transactionId);
+$branch = \Gameball\Models\Branch::factory('bid123' , 'bname123');
+
+$merchant = new \Gameball\Models\Merchant();
+$merchant->uniqueId = 'mid123';
+$merchant->name = 'mname123';
+$merchant->branch = $branch;
+
+
+$res= $gameball->transaction->rewardPoints($playerRequest,$amount ,$transactionId, $merchant);
 echo $res->body;
 
 
@@ -259,4 +267,41 @@ $holdReference ='9245fe4a-d402-451c-b9ed-9c1a04247482';
 
 
 $res= $gameball->transaction->reverseHold($playerUniqueId,$holdReference);
+echo $res->body;
+
+
+//Action
+
+//Example 1
+
+$gameball = new \Gameball\GameballClient('API_KEY','TRANS_KEY');
+
+
+
+$playerRequest =new \Gameball\Models\PlayerRequest();
+$playerRequest->playerUniqueId='player123';
+
+
+$amount = '99.98';
+$transactionId ='tra_123456789';
+
+
+$branch = \Gameball\Models\Branch::factory('bid123' , 'bname123');
+
+$merchant = new \Gameball\Models\Merchant();
+$merchant->uniqueId = 'mid123';
+$merchant->name = 'mname123';
+$merchant->branch = $branch;
+
+$pointsTransaction = new \Gameball\Models\PointsTransaction();
+$pointsTransaction->transactionId = $transactionId;
+$pointsTransaction->rewardAmount = $amount;
+$pointsTransaction->merchant = $merchant;
+
+
+$actionRequest = new \Gameball\Models\ActionRequest();
+$actionRequest->playerRequest = $playerRequest;
+$actionRequest->pointsTransaction = $pointsTransaction;
+
+$res= $gameball->action->sendAction($actionRequest);
 echo $res->body;
