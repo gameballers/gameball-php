@@ -111,6 +111,33 @@ abstract class ExtractingParameters{
             if(isset($rewardAmount))
                 $params['pointsTransaction']['rewardAmount'] = $rewardAmount;
 
+            $merchant = $actionRequest->pointsTransaction->merchant;
+            if(isset($merchant))
+            {
+                $params['pointsTransaction']['merchant'] = array();
+                $merchantId = $merchant->uniqueId;
+                if(isset($merchantId))
+                {
+                    $params['pointsTransaction']['merchant']['uniqueId'] = $merchantId;
+                }
+                $merchantName = $merchant->name;
+                if(isset($merchantName))
+                {
+                    $params['pointsTransaction']['merchant']['name'] = $merchantName;
+                }
+                $branch = $merchant->branch;
+                if(isset($branch))
+                {
+                    $params['pointsTransaction']['merchant']['branch'] = array();
+                    $params['pointsTransaction']['merchant']['branch']['uniqueId'] = $branch->uniqueId;
+                    $branchName = $branch->name;
+                    if(isset($branchName))
+                    {
+                        $params['pointsTransaction']['merchant']['branch']['name'] = $branchName;
+                    }
+                }
+            }
+
             $holdReference = $actionRequest->pointsTransaction->holdReference;
             if(isset($holdReference))
                 $params['pointsTransaction']['holdReference'] = $holdReference;

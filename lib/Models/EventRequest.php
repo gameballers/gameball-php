@@ -32,7 +32,7 @@ class EventRequest extends AbstractModel
     {
         if (!$this->playerRequest)
         {
-              throw new \Gameball\Exception\GameballException("Player Request object dhould be provided.");
+              throw new \Gameball\Exception\GameballException("Player Request object should be provided.");
         }
 
         $this->playerRequest->validate();

@@ -20,6 +20,10 @@ class PointsTransaction extends AbstractModel
     */
     public $rewardAmount;
     /**
+    * @var Merchant $merchant
+    */
+    public $merchant;
+    /**
     * @var string $holdReference
     */
     public $holdReference;
@@ -28,10 +32,11 @@ class PointsTransaction extends AbstractModel
     public function __construct(){
 
     }
-    public static function factory($transactionId, $rewardAmount=null, $holdReference =null){
+    public static function factory($transactionId, $rewardAmount=null, $merchant=null, $holdReference =null){
         $instance = new self();
         $instance->transactionId = $transactionId;
         $instance->rewardAmount = $rewardAmount;
+        $instance->merchant = $merchant;
         $instance->holdReference = $holdReference;
 
 
@@ -53,6 +58,11 @@ class PointsTransaction extends AbstractModel
         if($this->rewardAmount && !is_numeric($this->rewardAmount))
         {
             throw new \Gameball\Exception\GameballException("rewardAmount should be string of numeric value");
+        }
+
+        if($this->merchant)
+        {
+            $this->merchant->validate();
         }
     }
 }
