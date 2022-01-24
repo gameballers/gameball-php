@@ -63,13 +63,12 @@ $playerAttributes->joinDate = '2022-01-01T21:06:29.158Z';
 
 $playerRequest = \Gameball\Models\PlayerRequest::factory(
         "player_unique_id",
-        null,
-        null,
+        null, // EMAIL
+        null, // MOBILE 
         $playerAttributes
     );
 
 // SEND EVENT
-
 $eventRequest = new \Gameball\Models\EventRequest();
 $eventRequest->addEvent('place_order');
 $eventRequest->addMetaData('place_order','total_amount','100');
