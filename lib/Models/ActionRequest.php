@@ -5,6 +5,7 @@ namespace Gameball\Models;
 
 /**
  * An instance of this class represents an object which collects the parameters sent for Action Service API
+ * CURRENTLY DEPRECATED
  */
 
 class ActionRequest extends AbstractModel
