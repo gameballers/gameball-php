@@ -48,7 +48,27 @@ The SDK needs to be configured with your account's API & Transaction keys availa
 #### Sending an Event
 
 ```PHP
-$gameball = new \Gameball\GameballClient('Your_API_Key');
+// INITIALIZE PLAYER
+$gameball = new \Gameball\GameballClient('Your_API_Key', 'Your_SECRET_Key');
+
+$playerAttributes = new \Gameball\Models\PlayerAttributes();
+$playerAttributes->displayName = "display_name";
+$playerAttributes->firstName = 'first_name';
+$playerAttributes->lastName = 'last_name';
+$playerAttributes->gender = 'M';
+$playerAttributes->email = 'user@example.com';
+$playerAttributes->mobile = '_mobile_';
+$playerAttributes->dateOfBirth = '1991-09-19T00:00:00.000Z';
+$playerAttributes->joinDate = '2022-01-01T21:06:29.158Z';
+
+$playerRequest = \Gameball\Models\PlayerRequest::factory(
+        "player_unique_id",
+        null,
+        null,
+        $playerAttributes
+    );
+
+// SEND EVENT
 
 $eventRequest = new \Gameball\Models\EventRequest();
 $eventRequest->addEvent('place_order');
@@ -63,6 +83,9 @@ $res= $gameball->event->sendEvent($eventRequest);
 
 // Accessing response data
 echo $res->body;
+
+// Accessing response data as JSON
+echo $res->decodedJson;
 ```
 
 
