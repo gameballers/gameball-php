@@ -29,27 +29,11 @@ class ActionService extends \Gameball\Service\AbstractService
 
           $params = \Gameball\Util\ExtractingParameters::fromActionRequest($actionRequest);
 
-          if(isset($params['pointsTransaction']))
-          {
-              $transactionKey = $this->getClient()->getTransactionKey();
-
-              if(!$transactionKey)
-                  throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
-
-              $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))).'Z';
-              $params['pointsTransaction']['transactionTime'] = $UTC_DateNow;
-
-              $playerUniqueId = $params['playerUniqueId'];
-              $yyMMddHHmmss = \Gameball\Util\Util::extractDateInfo($UTC_DateNow);
-              $amount = isset($params['pointsTransaction']['rewardAmount'])?$params['pointsTransaction']['rewardAmount']:'';
-
-
-              $body = $playerUniqueId.":".$yyMMddHHmmss.":".$amount.":".$transactionKey;
-              $bodyHashed = \sha1($body);
-              $params['pointsTransaction']['hash'] = $bodyHashed;
-          }
+          $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))).'Z';
+          $params['actionDate'] = $UTC_DateNow;
 
           $response = $this->request('post', '/integrations/action', $headers, $params);
+
 
           if($response->isSuccess())
           {

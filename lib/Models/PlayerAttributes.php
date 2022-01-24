@@ -37,14 +37,19 @@ class PlayerAttributes extends AbstractModel
     public $gender;
 
     /**
-    * @var string $mobileNumber
+    * @var string $mobile
     */
-    public $mobileNumber;
+    public $mobile;
 
     /**
     * @var string $community
     */
     public $community;
+
+    /**
+    * @var string $tags
+    */
+    public $tags;
 
     /**
     * @var DateTime $dateOfBirth
@@ -70,8 +75,9 @@ class PlayerAttributes extends AbstractModel
                                 $lastName=null,
                                 $email=null,
                                 $gender=null,
-                                $mobileNumber=null,
+                                $mobile=null,
                                 $community=null,
+                                $tags=null,
                                 $dateOfBirth=null,
                                 $joinDate=null)
     {
@@ -81,8 +87,9 @@ class PlayerAttributes extends AbstractModel
         $instance->lastName=$lastName;
         $instance->email=$email;
         $instance->gender=$gender;
-        $instance->mobileNumber=$mobileNumber;
+        $instance->mobile=$mobile;
         $instance->community=$community;
+        $instance->tags=$tags;
 
         $instance->dateOfBirth=$dateOfBirth;
         $instance->joinDate=$joinDate;
@@ -129,7 +136,6 @@ class PlayerAttributes extends AbstractModel
 
     public function validate()
     {
-
         if(is_string($this->dateOfBirth))
         {
             $this->dateOfBirth = \strtotime($this->dateOfBirth);
@@ -139,7 +145,6 @@ class PlayerAttributes extends AbstractModel
         {
             $this->joinDate = \strtotime($this->joinDate);
         }
-
 
         $UTC_DateNow_String = \date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))).'Z';
         $UTC_DateNow = \strtotime($UTC_DateNow_String);

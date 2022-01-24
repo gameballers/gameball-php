@@ -212,14 +212,22 @@ class CurlClient implements ClientInterface{
             $opts[\CURLOPT_HTTPGET] = 1;
             // if it is get with passed parameters
 
-            // if (\count($params) > 0) {
-            //     $encoded = Util\Util::encodeParameters($params);
-            //     $absUrl = "{$absUrl}?{$encoded}";
-            // }
+            if (\count($params) > 0) {
+                $encoded = http_build_query($params);
+                $absUrl = "{$absUrl}?{$encoded}";
+            }
         }
         elseif ('post' === $method)
         {
             $opts[\CURLOPT_POST] = 1;
+            $json_encoded = json_encode($params);
+            $json_encoded = \str_replace("[]","{}",$json_encoded);
+            $opts[\CURLOPT_POSTFIELDS] = $json_encoded;
+        }
+        elseif ('put' === $method)
+        {
+            $opts[\CURLOPT_CUSTOMREQUEST] = "PUT";
+            $opts[\CURLOPT_RETURNTRANSFER] = 1;
             $json_encoded = json_encode($params);
             $json_encoded = \str_replace("[]","{}",$json_encoded);
             $opts[\CURLOPT_POSTFIELDS] = $json_encoded;
@@ -229,10 +237,11 @@ class CurlClient implements ClientInterface{
             $opts[\CURLOPT_CUSTOMREQUEST] = 'DELETE';
             // if delete with passed parameters
 
-            // if (\count($params) > 0) {
-            //     $encoded = Util\Util::encodeParameters($params);
-            //     $absUrl = "{$absUrl}?{$encoded}";
-            // }
+            if (\count($params) > 0) {
+                $json_encoded = json_encode($params);
+                $json_encoded = \str_replace("[]","{}",$json_encoded);
+                $opts[\CURLOPT_POSTFIELDS] = $json_encoded;
+            }
         }
         else
         {

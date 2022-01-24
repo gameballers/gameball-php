@@ -6,59 +6,7 @@ namespace Gameball\Service;
 class TransactionService extends \Gameball\Service\AbstractService
 {
 
-    /**
-     * @param string $playerUniqueId
-     * @param null|array $headers
-     *
-     * @throws \Gameball\Exception\GameballException if the request fails
-     *
-     * @return \Gameball\Gameball\ApiResponse
-     */
-    public function getPlayerBalance($playerUniqueId,$headers = null)
-    {
-      if($headers)
-          \array_push($headers , 'APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
-      else
-          $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
-
-        $transactionKey = $this->getClient()->getTransactionKey();
-
-        if(!$transactionKey)
-            throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
-
-
-        if(!$playerUniqueId)
-            throw new \Gameball\Exception\GameballException("Must provide playerUniqueId");
-
-        $params = array();
-        $params['playerUniqueId'] = $playerUniqueId;
-
-
-        $body = $playerUniqueId.":"."".":"."".":".$transactionKey;
-        $bodyHashed = \sha1($body);
-        $params['hash'] = $bodyHashed;
-
-        $response = $this->request('post', '/integrations/transaction/balance', $headers, $params);
-
-
-        if($response->isSuccess())
-        {
-            return $response;
-        }
-        else
-        {
-          $httpStatusCode = $response->code;
-
-          $gameballCode = isset($response->decodedJson['code'])?$response->decodedJson['code']:null;
-          $message = isset($response->decodedJson['message'])?$response->decodedJson['message']:null;
-          throw \Gameball\Exception\GameballException::factory($message,$httpStatusCode,$gameballCode);
-        }
-
-    }
-
-
-
-
+    
     /**
      * @param string $playerUniqueId
      * @param string $amount
@@ -68,19 +16,28 @@ class TransactionService extends \Gameball\Service\AbstractService
      *
      * @return \Gameball\Gameball\ApiResponse
      */
-    public function holdPoints($playerUniqueId, $amount,$otp = null, $headers = null)
+    public function holdPoints($playerUniqueId, $amount, $otp = null, $email = null, $mobile = null, $headers = null)
     {
-      if($headers)
-          \array_push($headers , 'APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
-      else
-        $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
+        $transactionKey = $this->getClient()->getSecretKey();
 
-        $transactionKey = $this->getClient()->getTransactionKey();
+        if ($headers)
+            \array_push(
+                $headers,
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
+        else
+            $headers = array(
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
 
-        if(!$transactionKey)
+        if (!$transactionKey)
             throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
 
-        if(!$playerUniqueId || !$amount)
+        if (!$playerUniqueId || !$amount)
             throw new \Gameball\Exception\GameballException("Must provide playerUniqueId and amount");
 
         $params = array();
@@ -88,32 +45,31 @@ class TransactionService extends \Gameball\Service\AbstractService
         $params['playerUniqueId'] = $playerUniqueId;
         $params['amount'] = $amount;
 
-        if($otp)
-            $params['otp'] = $otp;
 
-        $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))).'Z';
+        if (isset($email) && !is_null($email)) {
+            $params['email'] = $email;
+        }
+        
+        if (isset($mobile) && !is_null($mobile)) {
+            $params['mobile'] = $mobile;
+        }
+
+        // if($otp)
+        //     $params['otp'] = $otp;
+
+        $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))) . 'Z';
         $params['transactionTime'] = $UTC_DateNow;
-
-        $yyMMddHHmmss = \Gameball\Util\Util::extractDateInfo($UTC_DateNow);
-
-
-        $body = $playerUniqueId.":".$yyMMddHHmmss.":".$amount.":".$transactionKey;
-        $bodyHashed = \sha1($body);
-        $params['hash'] = $bodyHashed;
 
         $response =  $this->request('post', '/integrations/transaction/hold', $headers, $params);
 
-        if($response->isSuccess())
-        {
+        if ($response->isSuccess()) {
             return $response;
-        }
-        else
-        {
-          $httpStatusCode = $response->code;
+        } else {
+            $httpStatusCode = $response->code;
 
-          $gameballCode = isset($response->decodedJson['code'])?$response->decodedJson['code']:null;
-          $message = isset($response->decodedJson['message'])?$response->decodedJson['message']:null;
-          throw \Gameball\Exception\GameballException::factory($message,$httpStatusCode,$gameballCode);
+            $gameballCode = isset($response->decodedJson['code']) ? $response->decodedJson['code'] : null;
+            $message = isset($response->decodedJson['message']) ? $response->decodedJson['message'] : null;
+            throw \Gameball\Exception\GameballException::factory($message, $httpStatusCode, $gameballCode);
         }
     }
 
@@ -128,48 +84,43 @@ class TransactionService extends \Gameball\Service\AbstractService
      */
     public function redeemPoints($redeemPointsRequest, $headers = null)
     {
-      if($headers)
-          \array_push($headers , 'APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
-      else
-          $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
+        $transactionKey = $this->getClient()->getSecretKey();
 
-      $transactionKey = $this->getClient()->getTransactionKey();
+        if ($headers)
+            \array_push(
+                $headers,
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
+        else
+            $headers = array(
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
 
-      if(!$transactionKey)
-          throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
+        if (!$transactionKey)
+            throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
 
-      if(!$redeemPointsRequest)
-          throw new \Gameball\Exception\GameballException("Redeem Points Request object cannot be null");
+        if (!$redeemPointsRequest)
+            throw new \Gameball\Exception\GameballException("Redeem Points Request object cannot be null");
 
-      $redeemPointsRequest->validate();
+        $redeemPointsRequest->validate();
 
-      $params = \Gameball\Util\ExtractingParameters::fromRedeemPointsRequest($redeemPointsRequest);
+        $params = \Gameball\Util\ExtractingParameters::fromRedeemPointsRequest($redeemPointsRequest);
 
-      $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))).'Z';
-      $params['transactionTime'] = $UTC_DateNow;
+        $response = $this->request('post', '/integrations/transaction/redeem', $headers, $params);
 
-      $playerUniqueId = $params['playerUniqueId'];
-      $yyMMddHHmmss = \Gameball\Util\Util::extractDateInfo($UTC_DateNow);
+        if ($response->isSuccess()) {
+            return $response;
+        } else {
+            $httpStatusCode = $response->code;
 
-
-      $body = $playerUniqueId.":".$yyMMddHHmmss.":".''.":".$transactionKey;
-      $bodyHashed = \sha1($body);
-      $params['hash'] = $bodyHashed;
-
-      $response = $this->request('post', '/integrations/transaction/redeem', $headers, $params);
-
-      if($response->isSuccess())
-      {
-          return $response;
-      }
-      else
-      {
-        $httpStatusCode = $response->code;
-
-        $gameballCode = isset($response->decodedJson['code'])?$response->decodedJson['code']:null;
-        $message = isset($response->decodedJson['message'])?$response->decodedJson['message']:null;
-        throw \Gameball\Exception\GameballException::factory($message,$httpStatusCode,$gameballCode);
-      }
+            $gameballCode = isset($response->decodedJson['code']) ? $response->decodedJson['code'] : null;
+            $message = isset($response->decodedJson['message']) ? $response->decodedJson['message'] : null;
+            throw \Gameball\Exception\GameballException::factory($message, $httpStatusCode, $gameballCode);
+        }
     }
 
 
@@ -185,93 +136,89 @@ class TransactionService extends \Gameball\Service\AbstractService
      *
      * @return \Gameball\Gameball\ApiResponse
      */
-    public function rewardPoints($playerRequest, $amount, $transactionId, $merchant=null, $headers = null)
+    public function cashback($cashbackRequest, $headers = null)
     {
-      if($headers)
-          \array_push($headers , 'APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
-      else
-          $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
+        $transactionKey = $this->getClient()->getSecretKey();
 
-      $transactionKey = $this->getClient()->getTransactionKey();
-
-      if(!$transactionKey)
-          throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
-
-      if(!$playerRequest)
-          throw new \Gameball\Exception\GameballException("PlayerRequest object must be provided");
-
-      $playerRequest->validate();
-
-      if(!is_numeric($amount))
-          throw new \Gameball\Exception\GameballException("amount should be a numeric value");
-
-      if(!$transactionId)
-          throw new \Gameball\Exception\GameballException("Transaction ID must be provided");
-      
-      if($merchant)
-      {
-          $merchant->validate();
-      }
-    
-      $params = \Gameball\Util\ExtractingParameters::fromPlayerRequest($playerRequest);
-      $params['amount'] = $amount;
-      $params['transactionId'] = $transactionId;
-      
-      if($merchant)
-      {
-          // Extracting info from the merchant object
-          $params['merchant'] = array();
-          $merchantId = $merchant->uniqueId;
-          if(isset($merchantId))
-          {
-              $params['merchant']['uniqueId'] = $merchantId;
-          }
-          $merchantName = $merchant->name;
-          if(isset($merchantName))
-          {
-              $params['merchant']['name'] = $merchantName;
-          }
-          $branch = $merchant->branch;
-          if(isset($branch))
-          {
-              $params['merchant']['branch'] = array();
-              $params['merchant']['branch']['uniqueId'] = $branch->uniqueId;
-              $branchName = $branch->name;
-              if(isset($branchName))
-              {
-                $params['merchant']['branch']['name'] = $branchName;
-              }
-          }
-      }
-      
+        if ($headers)
+            \array_push(
+                $headers,
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
+        else
+            $headers = array(
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
 
 
-
-      $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))).'Z';
-      $params['transactionTime'] = $UTC_DateNow;
-
-      $playerUniqueId = $params['playerUniqueId'];
-      $yyMMddHHmmss = \Gameball\Util\Util::extractDateInfo($UTC_DateNow);
+        if (!$transactionKey)
+            throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
 
 
-      $body = $playerUniqueId.":".$yyMMddHHmmss.":".$amount.":".$transactionKey;
-      $bodyHashed = \sha1($body);
-      $params['hash'] = $bodyHashed;
+        $params = \Gameball\Util\ExtractingParameters::fromCashbackRequest($cashbackRequest);
 
-      $response = $this->request('post', '/integrations/transaction/reward', $headers, $params);
 
-      if($response->isSuccess())
-      {
-          return $response;
-      }
-      else
-      {
-        $httpStatusCode = $response->code;
+        $response = $this->request('post', '/integrations/transaction/cashback', $headers, $params);
 
-        $gameballCode = isset($response->decodedJson['code'])?$response->decodedJson['code']:null;
-        $message = isset($response->decodedJson['message'])?$response->decodedJson['message']:null;
-        throw \Gameball\Exception\GameballException::factory($message,$httpStatusCode,$gameballCode);
-      }
+        if ($response->isSuccess()) {
+            return $response;
+        } else {
+            $httpStatusCode = $response->code;
+
+            $gameballCode = isset($response->decodedJson['code']) ? $response->decodedJson['code'] : null;
+            $message = isset($response->decodedJson['message']) ? $response->decodedJson['message'] : null;
+            throw \Gameball\Exception\GameballException::factory($message, $httpStatusCode, $gameballCode);
+        }
+    }
+
+       /**
+     * @param ManualTransactionRequest $manualTransactionRequest
+     * @param string $amount
+     * @param string $transactionId
+     * @param null|array $headers
+     *
+     * @throws \Gameball\Exception\GameballException if the request fails
+     *
+     * @return \Gameball\Gameball\ApiResponse
+     */
+    public function manualTransaction($manualTransactionRequest, $headers = null)
+    {
+        $transactionKey = $this->getClient()->getSecretKey();
+
+        if ($headers)
+            \array_push(
+                $headers,
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
+        else
+            $headers = array(
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
+
+        if (!$transactionKey)
+            throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
+
+        $params = \Gameball\Util\ExtractingParameters::fromManualTransactionRequest($manualTransactionRequest);
+
+        $response = $this->request('post', '/integrations/transaction/manual', $headers, $params);
+
+        if ($response->isSuccess()) {
+            return $response;
+        } else {
+            $httpStatusCode = $response->code;
+
+            $gameballCode = isset($response->decodedJson['code']) ? $response->decodedJson['code'] : null;
+            $message = isset($response->decodedJson['message']) ? $response->decodedJson['message'] : null;
+            throw \Gameball\Exception\GameballException::factory($message, $httpStatusCode, $gameballCode);
+        }
     }
 
 
@@ -286,56 +233,124 @@ class TransactionService extends \Gameball\Service\AbstractService
      *
      * @return \Gameball\Gameball\ApiResponse
      */
-    public function reverseTransaction($playerUniqueId, $transactionId, $reversedTransactionId, $headers = null)
+    public function refund($playerUniqueId, $transactionId, $reversedTransactionId, $headers = null)
     {
-      if($headers)
-          \array_push($headers , 'APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
-      else
-          $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
+        $transactionKey = $this->getClient()->getSecretKey();
 
-      $transactionKey = $this->getClient()->getTransactionKey();
+        if ($headers)
+            \array_push(
+                $headers,
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
+        else
+            $headers = array(
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
 
-      if(!$transactionKey)
-          throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
-
-
-      if(!$playerUniqueId)
-          throw new \Gameball\Exception\GameballException("Must provide playerUniqueId");
-
-      $params = array();
-      $params['playerUniqueId'] = $playerUniqueId;
-
-      if(!$transactionId)
-          throw new \Gameball\Exception\GameballException("Must provide transactionId");
-      $params['transactionId'] = $transactionId;
-
-      if(!$reversedTransactionId)
-          throw new \Gameball\Exception\GameballException("Must provide reversedTransactionId");
-      $params['reversedTransactionId'] = $reversedTransactionId;
-
-      $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))).'Z';
-      $params['transactionTime'] = $UTC_DateNow;
-
-      $yyMMddHHmmss = \Gameball\Util\Util::extractDateInfo($UTC_DateNow);
+        if (!$transactionKey)
+            throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
 
 
-      $body = $playerUniqueId.":".$yyMMddHHmmss.":"."".":".$transactionKey;
-      $bodyHashed = \sha1($body);
-      $params['hash'] = $bodyHashed;
+        if (!$playerUniqueId)
+            throw new \Gameball\Exception\GameballException("Must provide playerUniqueId");
 
-      $response =  $this->request('post', '/integrations/transaction/cancel', $headers, $params);
-      if($response->isSuccess())
-      {
-          return $response;
-      }
-      else
-      {
-        $httpStatusCode = $response->code;
+        $params = array();
+        $params['playerUniqueId'] = $playerUniqueId;
 
-        $gameballCode = isset($response->decodedJson['code'])?$response->decodedJson['code']:null;
-        $message = isset($response->decodedJson['message'])?$response->decodedJson['message']:null;
-        throw \Gameball\Exception\GameballException::factory($message,$httpStatusCode,$gameballCode);
-      }
+        if (!$transactionId)
+            throw new \Gameball\Exception\GameballException("Must provide transactionId");
+        $params['transactionId'] = $transactionId;
+
+        if (!$reversedTransactionId)
+            throw new \Gameball\Exception\GameballException("Must provide reversedTransactionId");
+        $params['reversedTransactionId'] = $reversedTransactionId;
+
+        $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))) . 'Z';
+        $params['transactionTime'] = $UTC_DateNow;
+
+        $response =  $this->request('post', '/integrations/transaction/refund', $headers, $params);
+        if ($response->isSuccess()) {
+            return $response;
+        } else {
+            $httpStatusCode = $response->code;
+
+            $gameballCode = isset($response->decodedJson['code']) ? $response->decodedJson['code'] : null;
+            $message = isset($response->decodedJson['message']) ? $response->decodedJson['message'] : null;
+            throw \Gameball\Exception\GameballException::factory($message, $httpStatusCode, $gameballCode);
+        }
+    }
+
+
+    /**
+     * @param string $playerUniqueId
+     * @param string $transactionId
+     * @param string $reversedTransactionId
+     * @param null|array $headers
+     *
+     * @throws \Gameball\Exception\GameballException if the request fails
+     *
+     * @return \Gameball\Gameball\ApiResponse
+     */
+    public function listTransactions(
+        $page = 1,
+        $limit = 50,
+        $direction = null,
+        $from = null,
+        $to = null,
+        $transactionId = null,
+        $status = null,
+        $headers = null
+    ) {
+        $transactionKey = $this->getClient()->getSecretKey();
+
+        if ($headers)
+            \array_push(
+                $headers,
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
+        else
+            $headers = array(
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
+
+        if (!$transactionKey)
+            throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
+
+
+        if ($direction) {
+            if (!in_array($direction, ['+', '-']))
+                throw new \Gameball\Exception\GameballException("Invalid Direction Parameter, should be either + or -");
+        }
+
+        $params = array(
+            'page' => $page,
+            'limit' => $limit,
+            'direction' => $direction,
+            'from' => $from,
+            'to' => $to,
+            'transactionId' => $transactionId,
+            'status' => $status
+        );
+
+        $response =  $this->request('get', '/integrations/transaction/list', $headers, $params);
+
+        if ($response->isSuccess()) {
+            return $response;
+        } else {
+            $httpStatusCode = $response->code;
+
+            $gameballCode = isset($response->decodedJson['code']) ? $response->decodedJson['code'] : null;
+            $message = isset($response->decodedJson['message']) ? $response->decodedJson['message'] : null;
+            throw \Gameball\Exception\GameballException::factory($message, $httpStatusCode, $gameballCode);
+        }
     }
 
 
@@ -349,53 +364,55 @@ class TransactionService extends \Gameball\Service\AbstractService
      *
      * @return \Gameball\Gameball\ApiResponse
      */
-    public function reverseHold($playerUniqueId, $holdReference, $headers = null)
+    public function reverseHold($playerUniqueId, $holdReference, $email = null, $mobile = null, $headers = null)
     {
-      if($headers)
-          \array_push($headers , 'APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
-      else
-          $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
+        $transactionKey = $this->getClient()->getSecretKey();
 
-      $transactionKey = $this->getClient()->getTransactionKey();
+        if ($headers)
+            \array_push(
+                $headers,
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
+        else
+            $headers = array(
+                'APIKey: ' . $this->getClient()->getApiKey(),
+                'secretKey: ' . $this->getClient()->getSecretKey(),
+                'Content-Type: application/json'
+            );
 
-      if(!$transactionKey)
-          throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
-
-
-      if(!$playerUniqueId)
-          throw new \Gameball\Exception\GameballException("Must provide playerUniqueId");
-
-      $params = array();
-      $params['playerUniqueId'] = $playerUniqueId;
-
-      if(!$holdReference)
-          throw new \Gameball\Exception\GameballException("Must provide holdReference");
-      $params['holdReference'] = $holdReference;
-
-      $UTC_DateNow = date(sprintf('Y-m-d\TH:i:s%s', substr(microtime(), 1, 4))).'Z';
-      $params['transactionTime'] = $UTC_DateNow;
-
-      $yyMMddHHmmss = \Gameball\Util\Util::extractDateInfo($UTC_DateNow);
+        if (!$transactionKey)
+            throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
 
 
-      $body = $playerUniqueId.":".$yyMMddHHmmss.":"."".":".$transactionKey;
-      $bodyHashed = \sha1($body);
-      $params['hash'] = $bodyHashed;
+        if (!$playerUniqueId)
+            throw new \Gameball\Exception\GameballException("Must provide playerUniqueId");
 
-      $response =  $this->request('post', '/integrations/transaction/hold', $headers, $params);
+        $params = array();
+        $params['playerUniqueId'] = $playerUniqueId;
 
-      if($response->isSuccess())
-      {
-          return $response;
-      }
-      else
-      {
-        $httpStatusCode = $response->code;
+        if (isset($email) && !is_null($email)) {
+            $params['email'] = $email;
+        }
 
-        $gameballCode = isset($response->decodedJson['code'])?$response->decodedJson['code']:null;
-        $message = isset($response->decodedJson['message'])?$response->decodedJson['message']:null;
-        throw \Gameball\Exception\GameballException::factory($message,$httpStatusCode,$gameballCode);
-      }
+        if (isset($mobile) && !is_null($mobile)) {
+            $params['mobile'] = $mobile;
+        }
+
+        if (!$holdReference)
+            throw new \Gameball\Exception\GameballException("Must provide holdReference");
+
+        $response =  $this->request('delete', "/integrations/transaction/hold/{$holdReference}", $headers, $params);
+
+        if ($response->isSuccess()) {
+            return $response;
+        } else {
+            $httpStatusCode = $response->code;
+
+            $gameballCode = isset($response->decodedJson['code']) ? $response->decodedJson['code'] : null;
+            $message = isset($response->decodedJson['message']) ? $response->decodedJson['message'] : null;
+            throw \Gameball\Exception\GameballException::factory($message, $httpStatusCode, $gameballCode);
+        }
     }
-
 }

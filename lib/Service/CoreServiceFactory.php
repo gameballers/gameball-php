@@ -20,8 +20,13 @@ class CoreServiceFactory extends \Gameball\Service\AbstractServiceFactory
         'event' => EventService::class,
         'transaction' => TransactionService::class,
         'action' => ActionService::class,
-        'coupon' => CouponService::class
-                               ];
+        'order' => OrderService::class,
+        'coupon' => CouponService::class,
+        'leaderboard' => LeaderboardService::class,
+        'notification' => NotificationService::class,
+        'configurations' => ConfigService::class,
+        'batch' => BatchService::class
+    ];
 
     protected function getServiceClass($name)
     {

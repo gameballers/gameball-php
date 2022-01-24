@@ -5,11 +5,11 @@ namespace Gameball;
 class BaseGameballClient implements GameballClientInterface
 {
     /** @var string default base URL for Gameball's API */
-    const DEFAULT_API_BASE = 'https://api.gameball.co/api/v2.0';
+    const DEFAULT_API_BASE = 'https://api.gameball.co/api/v3.0';
 
 
     private $apiKey;
-    private $transactionKey;
+    private $secretKey;
     private $apiBase;
 
     /**
@@ -19,14 +19,14 @@ class BaseGameballClient implements GameballClientInterface
      *
      *
      * @param string $apiKey
-     * @param string $transactionKey
+     * @param string $secretKey
      * @param string $apiKey
      */
-    public function __construct($apiKey , $transactionKey =null ,$apiBase=null)
+    public function __construct($apiKey , $secretKey =null ,$apiBase=null)
     {
 
         $this->apiKey = $apiKey;
-        $this->transactionKey = $transactionKey;
+        $this->secretKey = $secretKey;
         $this->apiBase = $apiBase;
     }
 
@@ -42,13 +42,13 @@ class BaseGameballClient implements GameballClientInterface
 
 
     /**
-     * Gets the transaction key used by the client to send requests.
+     * Gets the secret key used by the client to send requests.
      *
-     * @return null|string the transaction key used by the client to send requests
+     * @return null|string the secret key used by the client to send requests
      */
-    public function getTransactionKey()
+    public function getSecretKey()
     {
-        return $this->transactionKey;
+        return $this->secretKey;
     }
 
 
@@ -75,11 +75,11 @@ class BaseGameballClient implements GameballClientInterface
     }
 
     /**
-    * sets the transactionKey for this client by the passed value
+    * sets the secretKey for this client by the passed value
     */
-    public function setTransactionKey($transactionKey)
+    public function setSecretKey($secretKey)
     {
-        $this->transactionkey = $transactionKey;
+        $this->secretKey = $secretKey;
     }
 
     /**

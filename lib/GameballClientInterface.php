@@ -19,7 +19,7 @@ interface GameballClientInterface
      *
      * @return null|string the transaction key used by the client to send requests
      */
-    public function getTransactionKey();
+    public function getSecretKey();
 
 
     /**
@@ -35,9 +35,9 @@ interface GameballClientInterface
     public function setApiKey($apiKey);
 
     /**
-    * sets the transactionKey for this client by the passed value
+    * sets the secretKey for this client by the passed value
     */
-    public function setTransactionKey($transactionKey);
+    public function setSecretKey($secretKey);
 
     /**
     * sets the apiBase for this client by the passed value

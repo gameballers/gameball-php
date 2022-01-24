@@ -21,7 +21,7 @@ class CouponService extends \Gameball\Service\AbstractService
         else
             $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
 
-        $transactionKey = $this->getClient()->getTransactionKey();
+        $transactionKey = $this->getClient()->getSecretKey();
 
         if(!$transactionKey)
             throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
@@ -80,7 +80,7 @@ class CouponService extends \Gameball\Service\AbstractService
         else
             $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
 
-        $transactionKey = $this->getClient()->getTransactionKey();
+        $transactionKey = $this->getClient()->getSecretKey();
 
         if(!$transactionKey)
             throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
@@ -141,7 +141,7 @@ class CouponService extends \Gameball\Service\AbstractService
         else
             $headers =array('APIKey: '.$this->getClient()->getApiKey() , 'Content-Type: application/json');
 
-        $transactionKey = $this->getClient()->getTransactionKey();
+        $transactionKey = $this->getClient()->getSecretKey();
 
         if(!$transactionKey)
             throw new \Gameball\Exception\GameballException("Must have a transaction key to do the request");
